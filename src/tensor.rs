@@ -26,6 +26,7 @@ impl Tensor {
     }
 }
 
+// TODO: Change to From<&Tensor> for DynamicImage
 impl Into<DynamicImage> for &Tensor {
     fn into(self) -> DynamicImage {
         let mut new_image = DynamicImage::new_rgb8(

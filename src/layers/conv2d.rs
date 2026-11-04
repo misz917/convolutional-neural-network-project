@@ -43,6 +43,7 @@ impl Conv2D {
 
                 for ky in 0..k {
                     for kx in 0..k {
+                        // TODO: change to 0 padding
                         let ix = (x + kx - r).clamp(0, w - 1);
                         let iy = (y + ky - r).clamp(0, h - 1);
 

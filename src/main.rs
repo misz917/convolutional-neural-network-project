@@ -5,6 +5,7 @@ use crate::{cnn::CNN, layers::conv2d::Conv2D};
 mod cnn;
 pub mod kernel;
 mod layers;
+mod redone_tensor;
 pub mod tensor;
 
 fn main() {
