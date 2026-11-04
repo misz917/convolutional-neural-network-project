@@ -1,3 +1,5 @@
+use image::ImageReader;
+
 use crate::{cnn::CNN, pixels::Pixels};
 
 mod cnn;

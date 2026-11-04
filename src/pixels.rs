@@ -17,3 +17,10 @@ impl From<DynamicImage> for Pixels {
         Self(pixels)
     }
 }
+
+impl Pixels {
+    #[inline]
+    pub fn xy(&self, x: usize, y: usize) -> &[u8; 3] {
+        &self.0[x][y]
+    }
+}
