@@ -1,16 +1,14 @@
-use image::ImageReader;
-
-use crate::{cnn::CNN, pixels::Pixels};
+use crate::cnn::CNN;
 
 mod cnn;
+pub mod kernel;
 mod layers;
-mod pixels;
+pub mod tensor;
 
 fn main() {
     // tracing_subscriber::fmt().init();
 
     let image = image::open("image.png").unwrap();
-    let pixels: Pixels = image.into();
 
     let cnn = CNN::new();
     // cnn.forward();

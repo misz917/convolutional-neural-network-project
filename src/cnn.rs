@@ -1,4 +1,4 @@
-use crate::pixels::Pixels;
+use image::DynamicImage;
 
 pub struct CNN {}
 
@@ -7,7 +7,7 @@ impl CNN {
         CNN {}
     }
 
-    pub fn forward(&self, pixels: Pixels) -> Vec<f32> {
+    pub fn forward(&self, image: DynamicImage) -> Vec<f32> {
         todo!()
     }
 }
