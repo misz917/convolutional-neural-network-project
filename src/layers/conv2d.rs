@@ -1,4 +1,4 @@
-use image::DynamicImage;
+use image::{DynamicImage, GenericImageView, Rgba, RgbaImage};
 
 use crate::layers::Kernel;
 
@@ -28,7 +28,15 @@ impl Conv2D {
     }
 
     fn apply_filter(image: &DynamicImage, kernel: &Kernel) -> DynamicImage {
-        let filtered_image = image.filter3x3(kernel.weights());
-        filtered_image
+        let (width, height) = image.dimensions();
+        let mut new_image = DynamicImage::new_rgb8(width, height);
+
+        for w in 0..width {
+            for h in 0..height {
+                //
+            }
+        }
+
+        todo!()
     }
 }
