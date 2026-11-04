@@ -5,6 +5,8 @@ pub struct Kernel {
 
 impl Kernel {
     pub fn new_random(size: usize) -> Self {
+        assert!(size == 3);
+
         let weights: Vec<[f32; 3]> = (0..size * size)
             .map(|_| {
                 [
@@ -15,6 +17,15 @@ impl Kernel {
             })
             .collect();
         Self { size, weights }
+    }
+
+    pub fn new(size: usize, weights: &[[f32; 3]]) -> Self {
+        assert!(size == 3);
+
+        Self {
+            size,
+            weights: weights.into(),
+        }
     }
 
     pub fn get_size(&self) -> usize {

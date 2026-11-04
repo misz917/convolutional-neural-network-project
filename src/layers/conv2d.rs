@@ -8,7 +8,7 @@ pub struct Conv2D {
 
 impl Conv2D {
     pub fn new(kernel_num: usize, kernel_size: usize) -> Self {
-        assert!(kernel_size == 3);
+        assert!(kernel_size % 2 == 1);
 
         let kernels: Vec<Kernel> = (0..kernel_num)
             .map(|_| Kernel::new_random(kernel_size))
