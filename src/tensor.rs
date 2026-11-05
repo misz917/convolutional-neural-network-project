@@ -1,47 +1,125 @@
-use image::{DynamicImage, GenericImage, Rgba};
+use image::{DynamicImage, GenericImage, GenericImageView, Rgba};
 
+#[derive(Debug)]
 pub struct Tensor {
     width: usize,
     height: usize,
-    data: Box<[f32]>,
+    channels: usize,
+    maps: Vec<Box<[f32]>>,
 }
 
+// Box<[f32]>
+
 impl Tensor {
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new(width: usize, height: usize, channels: usize) -> Self {
         Self {
             width,
             height,
-            data: vec![0.0; width * height].into_boxed_slice(),
+            channels,
+            maps: vec![vec![0.0; width * height].into_boxed_slice(); channels],
         }
     }
 
-    #[inline]
-    pub fn put_xy(&mut self, x: usize, y: usize, value: f32) {
-        self.data[y * self.width + x] = value;
+    pub fn new_random(width: usize, height: usize, channels: usize) -> Self {
+        let maps: Vec<Box<[f32]>> = (0..channels)
+            .map(|_| Self::new_random_channel(width, height))
+            .collect();
+
+        Tensor {
+            width,
+            height,
+            channels,
+            maps,
+        }
+    }
+
+    fn new_random_channel(width: usize, height: usize) -> Box<[f32]> {
+        let wh = width * height;
+        let f32vec: Vec<f32> = (0..wh).map(|_| rand::random::<f32>() / wh as f32).collect();
+        let f32box = f32vec.into_boxed_slice();
+
+        f32box
     }
 
     #[inline]
-    pub fn get_xy(&self, x: usize, y: usize) -> f32 {
-        self.data[y * self.width + x]
+    pub fn get_xyz(&self, x: usize, y: usize, channel: usize) -> f32 {
+        self.maps[channel][y * self.width + x]
+    }
+
+    #[inline]
+    pub fn set_xyz(&mut self, x: usize, y: usize, channel: usize, value: f32) {
+        self.maps[channel][y * self.width + x] = value;
+    }
+
+    #[inline]
+    pub fn width(&self) -> usize {
+        self.width
+    }
+
+    #[inline]
+    pub fn height(&self) -> usize {
+        self.height
+    }
+
+    #[inline]
+    pub fn channels(&self) -> usize {
+        self.channels
+    }
+
+    pub fn merge(&mut self, other: Tensor) {
+        self.channels += other.channels;
+        self.maps.extend(other.maps);
     }
 }
 
-// TODO: Change to From<&Tensor> for DynamicImage
-impl Into<DynamicImage> for &Tensor {
-    fn into(self) -> DynamicImage {
-        let mut new_image = DynamicImage::new_rgb8(
-            self.width.try_into().unwrap(),
-            self.height.try_into().unwrap(),
-        );
+impl From<&DynamicImage> for Tensor {
+    fn from(value: &DynamicImage) -> Self {
+        let (width, height) = value.dimensions();
+        let rgb = value.to_rgb8();
+        let mut tensor = Tensor::new(width.try_into().unwrap(), height.try_into().unwrap(), 3);
 
-        for x in 0..self.width {
-            for y in 0..self.height {
-                let pixel = (self.get_xy(x, y) * 255.0).clamp(0.0, 255.0) as u8;
-                let rgba: Rgba<u8> = Rgba([pixel; 4]);
-                new_image.put_pixel(x as u32, y as u32, rgba);
+        for x in 0..width {
+            for y in 0..height {
+                let pixel = rgb.get_pixel(x, y).0;
+
+                for channel in 0..3 {
+                    tensor.set_xyz(
+                        x.try_into().unwrap(),
+                        y.try_into().unwrap(),
+                        channel,
+                        (pixel[channel] as f32) / 255.0,
+                    );
+                }
             }
         }
 
-        new_image
+        tensor
+    }
+}
+
+// TODO: improve for cases when there are more than 3 channel
+impl From<&Tensor> for DynamicImage {
+    fn from(value: &Tensor) -> Self {
+        let width = value.width();
+        let height = value.height();
+        let cnum = value.channels();
+
+        let mut image =
+            DynamicImage::new_rgb8(width.try_into().unwrap(), height.try_into().unwrap());
+
+        for x in 0..width {
+            for y in 0..height {
+                let r = (value.get_xyz(x, y, 0 % cnum) * 255.0).clamp(0.0, 255.0) as u8;
+                let g = (value.get_xyz(x, y, 1 % cnum) * 255.0).clamp(0.0, 255.0) as u8;
+                let b = (value.get_xyz(x, y, 2 % cnum) * 255.0).clamp(0.0, 255.0) as u8;
+                image.put_pixel(
+                    x.try_into().unwrap(),
+                    y.try_into().unwrap(),
+                    Rgba([r, g, b, 1]),
+                );
+            }
+        }
+
+        image
     }
 }

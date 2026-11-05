@@ -311,6 +311,7 @@ dependencies = [
  "image",
  "rand 0.10.3",
  "serde",
+ "thiserror",
  "tracing",
  "tracing-subscriber",
 ]

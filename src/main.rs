@@ -1,11 +1,10 @@
 use image::DynamicImage;
 
-use crate::{cnn::CNN, layers::conv2d::Conv2D, redone_tensor::Tensor};
+use crate::{cnn::CNN, layers::conv2d::Conv2D, tensor::Tensor};
 
 mod cnn;
 pub mod kernel;
 mod layers;
-mod redone_tensor;
 pub mod tensor;
 
 fn main() {
@@ -22,9 +21,9 @@ fn main() {
     //     img.save(format!("./{}.png", i)).unwrap();
     // }
 
-    let rtensor = Tensor::from(&image);
-    println!("{:?}", rtensor);
-    let r_image = DynamicImage::from(&rtensor);
+    let tensor = Tensor::from(&image);
+    println!("{:?}", tensor);
+    let r_image = DynamicImage::from(&tensor);
     r_image.save("r_image.png").unwrap();
 
     // let cnn = CNN::new();
