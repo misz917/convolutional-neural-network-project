@@ -13,18 +13,20 @@ fn main() {
     // let image = image::open("lenna.jpg").unwrap();
     let image = image::open("colors.png").unwrap();
 
-    // let conv2d = Conv2D::new(2, 3);
-    // let tensors = conv2d.apply(image);
+    let conv2d = Conv2D::new(1, 1, 3);
+    let input_tensor = Tensor::from(&image);
+    let output_tensor = conv2d.apply(&input_tensor);
+    println!("{:?}", output_tensor);
 
     // for (i, t) in tensors.iter().enumerate() {
     //     let img: DynamicImage = t.into();
     //     img.save(format!("./{}.png", i)).unwrap();
     // }
 
-    let tensor = Tensor::from(&image);
-    println!("{:?}", tensor);
-    let r_image = DynamicImage::from(&tensor);
-    r_image.save("r_image.png").unwrap();
+    // let tensor = Tensor::from(&image);
+    // println!("{:?}", tensor);
+    // let r_image = DynamicImage::from(&tensor);
+    // r_image.save("r_image.png").unwrap();
 
     // let cnn = CNN::new();
     // cnn.forward();
