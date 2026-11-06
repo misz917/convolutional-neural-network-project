@@ -40,33 +40,37 @@ impl Conv2D {
         let height = tensor.height() as i32;
         let mut new_tensor = Tensor::new(width as usize, height as usize, 1);
 
-        let kd = kernel.diameter() as i32;
+        let k_diameter = kernel.diameter() as i32;
+        let k_radius = k_diameter / 2;
 
         // for each pixel in tensor
-        for x in 0..width {
-            for y in 0..height {
+        for tensor_x in 0..width {
+            for tensor_y in 0..height {
                 let mut sum = 0.0;
                 // for each pixel in kernel
-                for kx in 0..kd {
-                    for ky in 0..kd {
+                for kernel_x in 0..k_diameter {
+                    for kernel_y in 0..k_diameter {
                         // relative to the selected tensor pixel
                         // clamped to stay within bounds of the tensor
                         // TODO: change to 0 padding
-                        let rx = (x + kx).clamp(0, width - 1);
-                        let ry = (y + ky).clamp(0, height - 1);
+                        let rx = (tensor_x + kernel_x - k_radius).clamp(0, width - 1);
+                        let ry = (tensor_y + kernel_y - k_radius).clamp(0, height - 1);
 
                         for ch in 0..channels {
                             let t_val =
                                 tensor.get_xyz(rx.try_into().unwrap(), ry.try_into().unwrap(), ch);
-                            let k_val =
-                                kernel.get_xyz(kx.try_into().unwrap(), ky.try_into().unwrap(), ch);
+                            let k_val = kernel.get_xyz(
+                                kernel_x.try_into().unwrap(),
+                                kernel_y.try_into().unwrap(),
+                                ch,
+                            );
 
                             sum += t_val * k_val;
                         }
                     }
                 }
 
-                new_tensor.set_xyz(x as usize, y as usize, 0, sum);
+                new_tensor.set_xyz(tensor_x as usize, tensor_y as usize, 0, sum);
             }
         }
 
