@@ -2,7 +2,7 @@ use image::DynamicImage;
 
 use crate::{
     cnn::CNN,
-    layers::{conv2d::Conv2D, relu::ReLU},
+    layers::{conv2d::Conv2D, maxpool2d::Maxpool2D, relu::ReLU},
     tensor::Tensor,
 };
 
@@ -18,5 +18,6 @@ fn main() {
     let tensor1 = Tensor::from(&image);
     let mut tensor2 = conv2d.apply(&tensor1);
     ReLU::apply(&mut tensor2);
-    println!("{:?}", tensor2);
+    let tensor3 = Maxpool2D::apply(&tensor2);
+    println!("{:?}", tensor3);
 }

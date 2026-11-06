@@ -42,6 +42,12 @@ impl Tensor {
         f32box
     }
 
+    /// returns (width, height, channels)
+    #[inline]
+    pub fn dimensions(&self) -> (usize, usize, usize) {
+        (self.width(), self.height(), self.channels())
+    }
+
     #[inline]
     pub fn get_xyz(&self, x: usize, y: usize, channel: usize) -> f32 {
         self.maps[channel][y * self.width + x]
