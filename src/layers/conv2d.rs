@@ -1,17 +1,23 @@
 use crate::{kernel::Kernel, tensor::Tensor};
 
 pub struct Conv2D {
+    in_channels: usize,
+    out_channels: usize,
     kernels: Vec<Kernel>,
 }
 
 impl Conv2D {
-    pub fn new(kernel_num: usize, kernel_radius: usize, kernel_height: usize) -> Self {
-        assert!(kernel_height > 0);
-        let kernels: Vec<Kernel> = (0..kernel_num)
-            .map(|_| Kernel::new_random(kernel_radius, kernel_height))
+    pub fn new(kernel_radius: usize, in_channels: usize, out_channels: usize) -> Self {
+        assert!(in_channels > 0);
+        let kernels: Vec<Kernel> = (0..out_channels)
+            .map(|_| Kernel::new_random(kernel_radius, in_channels))
             .collect();
 
-        Self { kernels }
+        Self {
+            kernels,
+            in_channels,
+            out_channels,
+        }
     }
 
     pub fn apply(&self, tensor: &Tensor) -> Tensor {
