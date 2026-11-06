@@ -1,13 +1,11 @@
 use image::{DynamicImage, GenericImage, GenericImageView, Rgba};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Tensor {
     width: usize,
     height: usize,
     maps: Vec<Box<[f32]>>,
 }
-
-// Box<[f32]>
 
 impl Tensor {
     pub fn new(width: usize, height: usize, channels: usize) -> Self {
@@ -75,6 +73,11 @@ impl Tensor {
 
     pub fn merge(&mut self, other: Tensor) {
         self.maps.extend(other.maps);
+    }
+
+    /// very unsafe to use
+    pub fn get_maps_mut(&mut self) -> &mut [Box<[f32]>] {
+        &mut self.maps
     }
 }
 

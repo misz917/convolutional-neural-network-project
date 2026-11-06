@@ -34,6 +34,11 @@ impl Kernel {
     pub fn inner(&self) -> &Tensor {
         &self.0
     }
+
+    /// very unsafe to use
+    pub fn get_maps_mut(&mut self) -> &mut [Box<[f32]>] {
+        self.0.get_maps_mut()
+    }
 }
 
 #[derive(Debug, Error)]

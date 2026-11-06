@@ -78,4 +78,8 @@ impl Conv2D {
 
         new_tensor
     }
+
+    pub fn get_kernels_mut(&mut self) -> &mut [Kernel] {
+        &mut self.kernels
+    }
 }
