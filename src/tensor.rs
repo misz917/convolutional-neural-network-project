@@ -4,7 +4,6 @@ use image::{DynamicImage, GenericImage, GenericImageView, Rgba};
 pub struct Tensor {
     width: usize,
     height: usize,
-    channels: usize,
     maps: Vec<Box<[f32]>>,
 }
 
@@ -15,7 +14,6 @@ impl Tensor {
         Self {
             width,
             height,
-            channels,
             maps: vec![vec![0.0; width * height].into_boxed_slice(); channels],
         }
     }
@@ -28,7 +26,6 @@ impl Tensor {
         Tensor {
             width,
             height,
-            channels,
             maps,
         }
     }
@@ -63,11 +60,10 @@ impl Tensor {
 
     #[inline]
     pub fn channels(&self) -> usize {
-        self.channels
+        self.maps.len()
     }
 
     pub fn merge(&mut self, other: Tensor) {
-        self.channels += other.channels;
         self.maps.extend(other.maps);
     }
 }
