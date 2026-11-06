@@ -7,7 +7,7 @@ pub struct Conv2D {
 }
 
 impl Conv2D {
-    pub fn new(kernel_radius: usize, in_channels: usize, out_channels: usize) -> Self {
+    pub fn new(in_channels: usize, out_channels: usize, kernel_radius: usize) -> Self {
         assert!(in_channels > 0);
         let kernels: Vec<Kernel> = (0..out_channels)
             .map(|_| Kernel::new_random(kernel_radius, in_channels))
@@ -24,23 +24,17 @@ impl Conv2D {
         let mut output_tensor = Tensor::new(tensor.width(), tensor.height(), 0);
 
         for kernel in &self.kernels {
-            let other = Self::convolve(tensor, kernel).unwrap();
+            let other = Self::convolve(tensor, kernel);
             output_tensor.merge(other);
         }
 
         output_tensor
     }
 
-    fn convolve(tensor: &Tensor, kernel: &Kernel) -> Result<Tensor, String> {
+    fn convolve(tensor: &Tensor, kernel: &Kernel) -> Tensor {
         let t_channels = tensor.channels();
         let channels = kernel.channels();
-        if t_channels != channels {
-            return Err(format!(
-                "Tensor channels != Kernel channels ({}!={})",
-                t_channels, channels
-            )
-            .to_owned());
-        }
+        assert_eq!(t_channels, channels);
 
         let width = tensor.width() as i32;
         let height = tensor.height() as i32;
@@ -80,6 +74,6 @@ impl Conv2D {
             }
         }
 
-        Ok(new_tensor)
+        new_tensor
     }
 }
