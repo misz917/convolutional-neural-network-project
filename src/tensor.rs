@@ -19,8 +19,12 @@ impl Tensor {
     }
 
     pub fn new_random(width: usize, height: usize, channels: usize) -> Self {
+        // worse version of Kaiming Initialization
+        let fan_in = (width * height * channels) as f32;
+        let limit = f32::sqrt(2.0 / fan_in);
+
         let maps: Vec<Box<[f32]>> = (0..channels)
-            .map(|_| Self::new_random_channel(width, height))
+            .map(|_| Self::new_random_channel(width, height, limit))
             .collect();
 
         Tensor {
@@ -30,9 +34,9 @@ impl Tensor {
         }
     }
 
-    fn new_random_channel(width: usize, height: usize) -> Box<[f32]> {
+    fn new_random_channel(width: usize, height: usize, limit: f32) -> Box<[f32]> {
         let wh = width * height;
-        let f32vec: Vec<f32> = (0..wh).map(|_| rand::random::<f32>() / wh as f32).collect();
+        let f32vec: Vec<f32> = (0..wh).map(|_| rand::random_range(-limit..limit)).collect();
         let f32box = f32vec.into_boxed_slice();
 
         f32box
