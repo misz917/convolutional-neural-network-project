@@ -41,7 +41,6 @@ impl Conv2D {
         let mut new_tensor = Tensor::new(width as usize, height as usize, 1);
 
         let kd = kernel.diameter() as i32;
-        let kr = kd / 2;
 
         // for each pixel in tensor
         for x in 0..width {
@@ -52,13 +51,15 @@ impl Conv2D {
                     for ky in 0..kd {
                         // relative to the selected tensor pixel
                         // clamped to stay within bounds of the tensor
-                        let rx = (x + kx - kr).clamp(0, width - 1);
-                        let ry = (y + ky - kr).clamp(0, height - 1);
+                        // TODO: change to 0 padding
+                        let rx = (x + kx).clamp(0, width - 1);
+                        let ry = (y + ky).clamp(0, height - 1);
 
                         for ch in 0..channels {
-                            println!("rx: {rx}, ry: {ry}, ch: {ch}");
-                            let t_val = tensor.get_xyz(rx as usize, ry as usize, ch);
-                            let k_val = kernel.get_xyz(rx as usize, ry as usize, ch);
+                            let t_val =
+                                tensor.get_xyz(rx.try_into().unwrap(), ry.try_into().unwrap(), ch);
+                            let k_val =
+                                kernel.get_xyz(kx.try_into().unwrap(), ky.try_into().unwrap(), ch);
 
                             sum += t_val * k_val;
                         }
@@ -71,46 +72,4 @@ impl Conv2D {
 
         Ok(new_tensor)
     }
-
-    // fn convolve(tensor: &Tensor, kernel: &Kernel) -> Result<Tensor, ()> {
-    //     let t_channels = tensor.channels();
-    //     let k_channels = kernel.channels();
-
-    //     // let rgb_image = image.to_rgb8(); // convert once
-    //     // let (width, height) = rgb_image.dimensions();
-    //     let width = tensor.width();
-    //     let height = tensor.height();
-    //     let (w, h) = (width as i32, height as i32);
-
-    //     let k = kernel.diameter() as i32;
-    //     let r = k / 2;
-
-    //     let mut out = Tensor::new(width, height, 1);
-
-    //     for y in 0..h {
-    //         for x in 0..w {
-    //             let mut sum = 0.0;
-
-    //             for ky in 0..k {
-    //                 for kx in 0..k {
-    //                     // TODO: change to 0 padding
-    //                     let ix = (x + kx - r).clamp(0, w - 1);
-    //                     let iy = (y + ky - r).clamp(0, h - 1);
-
-    //                     // let pixel = rgb_image.get_pixel(ix as u32, iy as u32);
-    //                     let val = tensor.get_xyz(ix.try_into().unwrap(), iy.try_into().unwrap(), 0);
-    //                     let kernel_val = kernel.get_xy(kx as usize, ky as usize);
-
-    //                     sum += pixel[0] as f32 * kernel_val[0]
-    //                         + pixel[1] as f32 * kernel_val[1]
-    //                         + pixel[2] as f32 * kernel_val[2];
-    //                 }
-    //             }
-
-    //             out.put_xy(x as usize, y as usize, sum);
-    //         }
-    //     }
-
-    //     out
-    // }
 }
