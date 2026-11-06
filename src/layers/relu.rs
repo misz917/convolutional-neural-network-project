@@ -1,9 +1,9 @@
-use crate::tensor::Tensor;
+use crate::{layers::Layer, tensor::Tensor};
 
 pub struct ReLU;
 
-impl ReLU {
-    pub fn apply(tensor: &mut Tensor) {
+impl Layer for ReLU {
+    fn apply(self, mut tensor: Tensor) -> Tensor {
         let width = tensor.width();
         let height = tensor.height();
         let channels = tensor.channels();
@@ -17,5 +17,7 @@ impl ReLU {
                 }
             }
         }
+
+        tensor
     }
 }

@@ -1,8 +1,5 @@
-use image::DynamicImage;
-
 use crate::{
-    cnn::CNN,
-    layers::{conv2d::Conv2D, maxpool2d::Maxpool2D, relu::ReLU},
+    layers::{Layer, conv2d::Conv2D, maxpool2d::Maxpool2D, relu::ReLU},
     tensor::Tensor,
 };
 
@@ -15,9 +12,12 @@ fn main() {
     let image = image::open("colors.png").unwrap();
 
     let conv2d = Conv2D::new(3, 1, 1);
-    let tensor1 = Tensor::from(&image);
-    let mut tensor2 = conv2d.apply(&tensor1);
-    ReLU::apply(&mut tensor2);
-    let tensor3 = Maxpool2D::apply(&tensor2);
-    println!("{:?}", tensor3);
+    let relu = ReLU;
+    let maxpool = Maxpool2D;
+
+    let t0 = Tensor::from(&image);
+    let t1 = conv2d.apply(t0);
+    let t2 = relu.apply(t1);
+    let t3 = maxpool.apply(t2);
+    println!("{:?}", t3);
 }

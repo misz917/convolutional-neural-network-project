@@ -1,9 +1,22 @@
-use crate::{kernel::Kernel, tensor::Tensor};
+use crate::{kernel::Kernel, layers::Layer, tensor::Tensor};
 
 pub struct Conv2D {
-    in_channels: usize,
-    out_channels: usize,
+    // in_channels: usize,
+    // out_channels: usize,
     kernels: Vec<Kernel>,
+}
+
+impl Layer for Conv2D {
+    fn apply(self, tensor: Tensor) -> Tensor {
+        let mut output_tensor = Tensor::new(tensor.width(), tensor.height(), 0);
+
+        for kernel in &self.kernels {
+            let other = Self::convolve(&tensor, kernel);
+            output_tensor.merge(other);
+        }
+
+        output_tensor
+    }
 }
 
 impl Conv2D {
@@ -15,20 +28,9 @@ impl Conv2D {
 
         Self {
             kernels,
-            in_channels,
-            out_channels,
+            // in_channels,
+            // out_channels,
         }
-    }
-
-    pub fn apply(&self, tensor: &Tensor) -> Tensor {
-        let mut output_tensor = Tensor::new(tensor.width(), tensor.height(), 0);
-
-        for kernel in &self.kernels {
-            let other = Self::convolve(tensor, kernel);
-            output_tensor.merge(other);
-        }
-
-        output_tensor
     }
 
     fn convolve(tensor: &Tensor, kernel: &Kernel) -> Tensor {
