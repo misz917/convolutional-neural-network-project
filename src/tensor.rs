@@ -16,8 +16,8 @@ impl Tensor {
         }
     }
 
+    /// worse version of Kaiming Initialization
     pub fn new_random(width: usize, height: usize, channels: usize) -> Self {
-        // worse version of Kaiming Initialization
         let fan_in = (width * height * channels) as f32;
         let limit = f32::sqrt(2.0 / fan_in);
 
@@ -79,6 +79,10 @@ impl Tensor {
     pub fn get_maps_mut(&mut self) -> &mut [Box<[f32]>] {
         &mut self.maps
     }
+
+    pub fn get_maps(&self) -> &[Box<[f32]>] {
+        &self.maps
+    }
 }
 
 impl From<&DynamicImage> for Tensor {
@@ -130,5 +134,15 @@ impl From<&Tensor> for DynamicImage {
         }
 
         image
+    }
+}
+
+impl From<Box<[f32]>> for Tensor {
+    fn from(value: Box<[f32]>) -> Self {
+        Tensor {
+            width: value.len(),
+            height: 1,
+            maps: vec![value],
+        }
     }
 }

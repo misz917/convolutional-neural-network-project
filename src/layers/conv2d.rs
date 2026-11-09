@@ -7,7 +7,7 @@ pub struct Conv2D {
 }
 
 impl Layer for Conv2D {
-    fn apply(self, tensor: Tensor) -> Tensor {
+    fn apply(&self, tensor: Tensor) -> Tensor {
         let mut output_tensor = Tensor::new(tensor.width(), tensor.height(), 0);
 
         for kernel in &self.kernels {
