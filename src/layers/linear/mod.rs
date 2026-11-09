@@ -13,7 +13,7 @@ impl Layer for Linear {
     fn apply(&self, tensor: Tensor) -> Tensor {
         assert_eq!(tensor.height(), 1);
         assert_eq!(tensor.channels(), 1);
-        assert_eq!(tensor.width(), self.neurons.len());
+        assert_eq!(tensor.width(), self.neurons[0].weights.len());
 
         let input = &tensor.get_maps()[0];
         let mut output: Vec<f32> = Vec::new();
