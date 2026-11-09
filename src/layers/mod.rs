@@ -7,5 +7,5 @@ pub mod maxpool2d;
 pub mod relu;
 
 pub trait Layer {
-    fn apply(&self, tensor: Tensor) -> Tensor;
+    fn apply(&mut self, tensor: Tensor) -> Tensor;
 }

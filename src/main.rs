@@ -9,7 +9,7 @@ mod layers;
 pub mod tensor;
 
 fn main() {
-    let cnn = CNN::new(vec![
+    let mut cnn = CNN::new(vec![
         Box::new(Conv2D::new(3, 1, 1)),
         Box::new(ReLU),
         Box::new(Maxpool2D),

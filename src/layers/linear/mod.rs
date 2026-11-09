@@ -10,7 +10,7 @@ pub struct Linear {
 }
 
 impl Layer for Linear {
-    fn apply(&self, tensor: Tensor) -> Tensor {
+    fn apply(&mut self, tensor: Tensor) -> Tensor {
         assert_eq!(tensor.height(), 1);
         assert_eq!(tensor.channels(), 1);
         assert_eq!(tensor.width(), self.neurons[0].weights.len());

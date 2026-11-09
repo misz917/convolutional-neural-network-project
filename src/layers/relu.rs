@@ -3,7 +3,7 @@ use crate::{layers::Layer, tensor::Tensor};
 pub struct ReLU;
 
 impl Layer for ReLU {
-    fn apply(&self, mut tensor: Tensor) -> Tensor {
+    fn apply(&mut self, mut tensor: Tensor) -> Tensor {
         let width = tensor.width();
         let height = tensor.height();
         let channels = tensor.channels();

@@ -3,7 +3,7 @@ use crate::{layers::Layer, tensor::Tensor};
 pub struct Maxpool2D;
 
 impl Layer for Maxpool2D {
-    fn apply(&self, tensor: Tensor) -> Tensor {
+    fn apply(&mut self, tensor: Tensor) -> Tensor {
         let (width, height, channels) = tensor.dimensions();
 
         let mut output = Tensor::new(width / 2, height / 2, channels);

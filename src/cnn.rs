@@ -11,10 +11,10 @@ impl CNN {
         Self { layers }
     }
 
-    pub fn forward(&self, image: DynamicImage) -> Vec<f32> {
+    pub fn forward(&mut self, image: DynamicImage) -> Vec<f32> {
         let mut tensor = Tensor::from(&image);
 
-        for layer in &self.layers {
+        for layer in &mut self.layers {
             tensor = layer.apply(tensor);
         }
 
