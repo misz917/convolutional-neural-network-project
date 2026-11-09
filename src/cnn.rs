@@ -7,7 +7,7 @@ impl CNN {
         CNN {}
     }
 
-    pub fn forward(&self, image: DynamicImage) -> Vec<f32> {
+    pub fn forward(&self, _image: DynamicImage) -> Vec<f32> {
         todo!()
     }
 }

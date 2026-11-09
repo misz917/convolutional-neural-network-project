@@ -56,11 +56,11 @@ impl TryFrom<Tensor> for Kernel {
         let height = value.height();
         let width = value.width();
         if height != width {
-            return Err(TensorTryFromKernelError::TensorDimensionsNotEqual);
-        } else if height % 2 == 0 {
-            return Err(TensorTryFromKernelError::TensorDiameterNotOdd);
+            Err(TensorTryFromKernelError::TensorDimensionsNotEqual)
+        } else if height.is_multiple_of(2) {
+            Err(TensorTryFromKernelError::TensorDiameterNotOdd)
         } else {
-            return Ok(Self(value));
+            Ok(Self(value))
         }
     }
 }

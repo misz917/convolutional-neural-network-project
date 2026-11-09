@@ -35,9 +35,8 @@ impl Tensor {
     fn new_random_channel(width: usize, height: usize, limit: f32) -> Box<[f32]> {
         let wh = width * height;
         let f32vec: Vec<f32> = (0..wh).map(|_| rand::random_range(-limit..limit)).collect();
-        let f32box = f32vec.into_boxed_slice();
 
-        f32box
+        f32vec.into_boxed_slice()
     }
 
     /// returns (width, height, channels)
@@ -95,12 +94,12 @@ impl From<&DynamicImage> for Tensor {
             for y in 0..height {
                 let pixel = rgb.get_pixel(x, y).0;
 
-                for channel in 0..3 {
+                for (channel, p) in pixel.iter().enumerate() {
                     tensor.set_xyz(
                         x.try_into().unwrap(),
                         y.try_into().unwrap(),
                         channel,
-                        (pixel[channel] as f32) / 255.0,
+                        (*p as f32) / 255.0,
                     );
                 }
             }
