@@ -7,7 +7,7 @@ pub struct Conv2D {
 }
 
 impl Layer for Conv2D {
-    fn apply(&mut self, tensor: Tensor) -> Tensor {
+    fn forward(&mut self, tensor: Tensor) -> Tensor {
         let mut output_tensor = Tensor::new(tensor.width(), tensor.height(), 0);
 
         for kernel in &self.kernels {
@@ -16,6 +16,14 @@ impl Layer for Conv2D {
         }
 
         output_tensor
+    }
+
+    fn backward(&mut self, gradient: Tensor) -> Tensor {
+        todo!()
+    }
+
+    fn update(&mut self, learning_rate: f32) {
+        todo!()
     }
 }
 

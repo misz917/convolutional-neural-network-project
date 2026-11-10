@@ -10,7 +10,7 @@ pub struct Linear {
 }
 
 impl Layer for Linear {
-    fn apply(&mut self, tensor: Tensor) -> Tensor {
+    fn forward(&mut self, tensor: Tensor) -> Tensor {
         assert_eq!(tensor.height(), 1);
         assert_eq!(tensor.channels(), 1);
         assert_eq!(tensor.width(), self.neurons[0].weights.len());
@@ -24,6 +24,14 @@ impl Layer for Linear {
         }
 
         Tensor::from(output.into_boxed_slice())
+    }
+
+    fn backward(&mut self, gradient: Tensor) -> Tensor {
+        todo!()
+    }
+
+    fn update(&mut self, learning_rate: f32) {
+        todo!()
     }
 }
 
