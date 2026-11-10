@@ -82,6 +82,10 @@ impl Tensor {
     pub fn get_maps(&self) -> &[Box<[f32]>] {
         &self.maps
     }
+
+    pub fn single_map(&self) -> &Box<[f32]> {
+        &self.maps[0]
+    }
 }
 
 impl From<&DynamicImage> for Tensor {
