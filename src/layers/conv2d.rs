@@ -20,10 +20,12 @@ impl Layer for Conv2D {
 }
 
 impl Conv2D {
-    pub fn new(in_channels: usize, out_channels: usize, kernel_radius: usize) -> Self {
+    pub fn new(in_channels: usize, out_channels: usize, kernel_diameter: usize) -> Self {
         assert!(in_channels > 0);
+        assert!(kernel_diameter % 2 == 1);
+
         let kernels: Vec<Kernel> = (0..out_channels)
-            .map(|_| Kernel::new_random(kernel_radius, in_channels))
+            .map(|_| Kernel::new_random(kernel_diameter, in_channels))
             .collect();
 
         Self {

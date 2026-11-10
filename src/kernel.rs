@@ -5,8 +5,8 @@ use crate::tensor::Tensor;
 pub struct Kernel(Tensor);
 
 impl Kernel {
-    pub fn new_random(radius: usize, channels: usize) -> Self {
-        let diameter = 1 + 2 * radius;
+    pub fn new_random(diameter: usize, channels: usize) -> Self {
+        assert!(diameter % 2 == 1);
         let tensor = Tensor::new_random(diameter, diameter, channels);
 
         Self(tensor)

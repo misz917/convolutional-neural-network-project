@@ -10,11 +10,11 @@ pub mod tensor;
 
 fn main() {
     let mut cnn = CNN::new(vec![
-        Box::new(Conv2D::new(3, 1, 1)),
+        Box::new(Conv2D::new(3, 16, 3)),
         Box::new(ReLU),
         Box::new(Maxpool2D),
         Box::new(Flatten),
-        Box::new(Linear::new(6, 2)),
+        Box::new(Linear::new(96, 5)),
     ]);
 
     let image = image::open("colors.png").unwrap();
