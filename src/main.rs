@@ -17,10 +17,14 @@ fn main() {
         Box::new(Flatten),
         Box::new(Linear::new(96, 5)),
     ]);
-
     let image = image::open("colors.png").unwrap();
-    let results = cnn.forward(image);
-    println!("{:?}", results);
+
+    let prediction = cnn.forward(image);
+    println!("{:?}", prediction);
+    let gradient = mse_gradient(&prediction, &[0.0, 1.0, 0.0, 0.0, 0.0]);
+    println!("{:?}", gradient);
+    cnn.backward(gradient);
+    cnn.update(0.01);
 }
 
 fn mse_gradient(prediction: &[f32], target: &[f32]) -> Tensor {
