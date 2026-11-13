@@ -2,6 +2,12 @@ use crate::{layers::Layer, tensor::Tensor};
 
 pub struct Flatten;
 
+impl Flatten {
+    pub fn new() -> Self {
+        Flatten
+    }
+}
+
 impl Layer for Flatten {
     fn forward(&mut self, tensor: Tensor) -> Tensor {
         let maps = tensor.get_maps();
@@ -14,7 +20,7 @@ impl Layer for Flatten {
         todo!()
     }
 
-    fn update(&mut self, learning_rate: f32) {
-        todo!()
+    fn update(&mut self, _learning_rate: f32) {
+        // do nothing
     }
 }

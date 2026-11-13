@@ -1,20 +1,29 @@
+use clap::Parser;
+
 use crate::{
+    cli::Cli,
     cnn::CNN,
     layers::{conv2d::Conv2D, flatten::Flatten, linear::Linear, maxpool2d::Maxpool2D, relu::ReLU},
     tensor::Tensor,
 };
 
+mod cli;
 mod cnn;
 pub mod kernel;
 mod layers;
 pub mod tensor;
 
 fn main() {
+    let cli = Cli::parse();
+    tracing_subscriber::fmt()
+        .with_max_level(cli.log_level)
+        .init();
+
     let mut cnn = CNN::new(vec![
         Box::new(Conv2D::new(3, 16, 3)),
         Box::new(ReLU),
         Box::new(Maxpool2D),
-        Box::new(Flatten),
+        Box::new(Flatten::new()),
         Box::new(Linear::new(96, 5)),
     ]);
     let image = image::open("colors.png").unwrap();
