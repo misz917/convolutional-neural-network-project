@@ -1,7 +1,7 @@
 use std::{collections::BTreeMap, fs, io, path::PathBuf};
 
 use image::DynamicImage;
-use tracing::{trace, warn};
+use tracing::{info, trace, warn};
 
 pub struct DataLoader {
     data_dir: PathBuf,
@@ -21,6 +21,11 @@ impl DataLoader {
             image_i: 0,
         };
         Self::populate_classes(&mut this).unwrap();
+        info!(
+            "Populated DataLoader.classes with {} directories and {} images",
+            this.num_classes(),
+            this.num_images()
+        );
 
         this
     }
@@ -50,6 +55,10 @@ impl DataLoader {
 
     pub fn num_classes(&self) -> usize {
         self.classes.len()
+    }
+
+    pub fn num_images(&self) -> usize {
+        self.classes.iter().map(|c| c.1.len()).sum()
     }
 
     pub fn get_all_classes(&self) -> Vec<String> {
