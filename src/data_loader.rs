@@ -56,7 +56,20 @@ impl DataLoader {
         self.classes.keys().cloned().collect()
     }
 
-    pub fn next(&mut self) -> Option<(DynamicImage, String)> {
+    pub fn auto_reset(&mut self, active: bool) {
+        self.auto_reset = active;
+    }
+
+    pub fn reset(&mut self) {
+        self.class_i = 0;
+        self.image_i = 0;
+    }
+}
+
+impl Iterator for DataLoader {
+    type Item = (DynamicImage, String);
+
+    fn next(&mut self) -> Option<Self::Item> {
         let mut wrapped = false;
 
         loop {
@@ -88,14 +101,5 @@ impl DataLoader {
                 Err(err) => warn!("Error loading {}: {err}", path.display()),
             }
         }
-    }
-
-    pub fn auto_reset(&mut self, active: bool) {
-        self.auto_reset = active;
-    }
-
-    pub fn reset(&mut self) {
-        self.class_i = 0;
-        self.image_i = 0;
     }
 }
