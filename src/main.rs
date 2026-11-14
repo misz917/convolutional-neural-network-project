@@ -28,12 +28,15 @@ fn main() {
     ]);
     let image = image::open("colors.png").unwrap();
 
-    let prediction = cnn.forward(image);
-    println!("{:?}", prediction);
-    let gradient = mse_gradient(&prediction, &[0.0, 1.0, 0.0, 0.0, 0.0]);
-    println!("{:?}", gradient);
-    cnn.backward(gradient);
-    cnn.update(0.01);
+    for i in 0..cli.epochs {
+        println!("\nLoop {i}");
+        let prediction = cnn.forward(image.clone());
+        println!("{:?}", prediction);
+        let gradient = mse_gradient(&prediction, &[0.0, 1.0, 0.0, 0.0, 0.0]);
+        println!("{:?}", gradient);
+        cnn.backward(gradient);
+        cnn.update(0.01);
+    }
 }
 
 fn mse_gradient(prediction: &[f32], target: &[f32]) -> Tensor {
