@@ -21,7 +21,7 @@ fn main() {
 
     let mut cnn = CNN::new(vec![
         Box::new(Conv2D::new(3, 16, 3)),
-        Box::new(ReLU),
+        Box::new(ReLU::new()),
         Box::new(Maxpool2D::new()),
         Box::new(Flatten::new()),
         Box::new(Linear::new(96, 5)),

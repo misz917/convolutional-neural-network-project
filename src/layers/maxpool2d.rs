@@ -57,14 +57,14 @@ impl Layer for Maxpool2D {
             .expect("backward called before forward");
         let max_positions = self.max_positions.as_mut().unwrap();
 
-        let mut input_gradient = Tensor::new(width, height, channels);
+        let mut inputsize_gradient = Tensor::new(width, height, channels);
 
         for c in 0..channels {
             for oy in 0..height / 2 {
                 for ox in 0..width / 2 {
                     let pos = max_positions.get_xyz(ox, oy, c) as usize;
                     let (dx, dy) = (pos % 2, pos / 2); // 0=ul, 1=ur, 2=dl, 3=dr
-                    input_gradient.set_xyz(
+                    inputsize_gradient.set_xyz(
                         ox * 2 + dx,
                         oy * 2 + dy,
                         c,
@@ -74,7 +74,7 @@ impl Layer for Maxpool2D {
             }
         }
 
-        input_gradient
+        inputsize_gradient
     }
 
     fn update(&mut self, _learning_rate: f32) {
