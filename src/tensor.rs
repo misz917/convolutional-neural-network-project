@@ -16,6 +16,14 @@ impl Tensor {
         }
     }
 
+    pub fn new_from_maps(maps: Vec<Box<[f32]>>, width: usize, height: usize) -> Self {
+        Self {
+            width,
+            height,
+            maps,
+        }
+    }
+
     /// worse version of Kaiming Initialization
     pub fn new_random(width: usize, height: usize, channels: usize) -> Self {
         let fan_in = (width * height * channels) as f32;
@@ -149,3 +157,13 @@ impl From<Box<[f32]>> for Tensor {
         }
     }
 }
+
+// impl From<Vec<Box<[f32]>>> for Tensor {
+//     fn from(value: Vec<Box<[f32]>>) -> Self {
+//         Tensor {
+//             width: todo!(),
+//             height: todo!(),
+//             maps: todo!(),
+//         }
+//     }
+// }

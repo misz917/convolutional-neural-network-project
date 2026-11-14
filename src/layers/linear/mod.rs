@@ -29,7 +29,11 @@ impl Layer for Linear {
     }
 
     fn backward(&mut self, gradient: Tensor) -> Tensor {
-        let last_input = self.last_input.as_ref().unwrap().single_map();
+        let last_input = self
+            .last_input
+            .as_ref()
+            .expect("backward called before forward")
+            .single_map();
         let gradient = gradient.single_map();
         let mut last_input_gradient = vec![0.0; last_input.len()];
 
