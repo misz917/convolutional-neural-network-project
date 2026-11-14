@@ -9,9 +9,11 @@ use crate::{
 
 mod cli;
 mod cnn;
+mod data_loader;
 pub mod kernel;
 mod layers;
 pub mod tensor;
+mod trainer;
 
 fn main() {
     let cli = Cli::parse();
