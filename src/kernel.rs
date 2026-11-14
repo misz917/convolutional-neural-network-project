@@ -39,6 +39,12 @@ impl Kernel {
     pub fn get_maps_mut(&mut self) -> &mut [Box<[f32]>] {
         self.0.get_maps_mut()
     }
+
+    #[inline]
+    pub fn set_xyz(&mut self, x: usize, y: usize, channel: usize, value: f32) {
+        let width = self.0.width();
+        self.0.get_maps_mut()[channel][y * width + x] = value;
+    }
 }
 
 #[derive(Debug, Error)]
