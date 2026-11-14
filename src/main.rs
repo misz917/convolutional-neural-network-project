@@ -3,6 +3,7 @@ use clap::Parser;
 use crate::{
     cli::Cli,
     cnn::CNN,
+    data_loader::DataLoader,
     layers::{conv2d::Conv2D, flatten::Flatten, linear::Linear, maxpool2d::Maxpool2D, relu::ReLU},
     tensor::Tensor,
 };
@@ -21,14 +22,16 @@ fn main() {
         .with_max_level(cli.log_level)
         .init();
 
+    let mut data_loader = DataLoader::new("cifar-10-png".into());
     let mut cnn = CNN::new(vec![
-        Box::new(Conv2D::new(3, 16, 3)),
+        Box::new(Conv2D::new(3, 4, 3)),
         Box::new(ReLU::new()),
         Box::new(Maxpool2D::new()),
         Box::new(Flatten::new()),
         Box::new(Linear::new(96, 5)),
     ]);
-    let image = image::open("colors.png").unwrap();
+
+    let image = data_loader.next().unwrap().0;
 
     for i in 0..cli.epochs {
         println!("\nLoop {i}");

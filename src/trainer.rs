@@ -21,6 +21,7 @@ impl Trainer {
     }
 
     pub fn run(&mut self) {
+        let option = self.data_loader.next();
         todo!()
     }
 }
