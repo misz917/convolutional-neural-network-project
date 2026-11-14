@@ -22,7 +22,7 @@ fn main() {
         .with_max_level(cli.log_level)
         .init();
 
-    let mut data_loader = DataLoader::new("cifar-10-png/train".into());
+    let data_loader = DataLoader::new("cifar-10-png/train".into());
     let mut cnn = CNN::new(vec![
         Box::new(Conv2D::new(3, 4, 3)),
         Box::new(ReLU::new()),
@@ -31,6 +31,6 @@ fn main() {
         Box::new(Linear::new(1024, data_loader.num_classes())),
     ]);
 
-    let mut trainer = Trainer::new(&mut cnn, data_loader, (32, 32), 1, 0.001);
+    let mut trainer = Trainer::new(&mut cnn, data_loader, (32, 32), cli.epochs, 0.01);
     trainer.run();
 }

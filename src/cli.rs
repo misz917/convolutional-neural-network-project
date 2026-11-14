@@ -6,5 +6,5 @@ pub struct Cli {
     /// OFF < ERROR < WARN < INFO < DEBUG < TRACE
     #[arg(short, long, default_value_t = LevelFilter::OFF)]
     pub log_level: LevelFilter,
-    pub epochs: u64,
+    pub epochs: u32,
 }
