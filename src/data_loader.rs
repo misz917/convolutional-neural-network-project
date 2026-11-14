@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::BTreeMap, path::PathBuf};
 
 use image::DynamicImage;
 use tracing::{trace, warn};
@@ -6,7 +6,7 @@ use tracing::{trace, warn};
 pub struct DataLoader {
     data_dir: PathBuf,
     auto_reset: bool,
-    dataset_structure: HashMap<String, Vec<PathBuf>>,
+    classes: BTreeMap<String, Vec<PathBuf>>,
     class_num: usize,
     image_num: usize,
 }
@@ -16,22 +16,22 @@ impl DataLoader {
         Self {
             data_dir,
             auto_reset: false,
-            dataset_structure: HashMap::new(),
+            classes: BTreeMap::new(),
             class_num: 0,
             image_num: 0,
         }
     }
 
-    pub fn len(&self) -> usize {
-        self.dataset_structure.len()
+    pub fn num_classes(&self) -> usize {
+        self.classes.len()
     }
 
     pub fn get_all_classes(&self) -> Vec<String> {
-        self.dataset_structure.keys().cloned().collect()
+        self.classes.keys().cloned().collect()
     }
 
     pub fn next(&mut self) -> Option<(DynamicImage, String)> {
-        let option = self.dataset_structure.iter().nth(self.class_num);
+        let option = self.classes.iter().nth(self.class_num);
         if option.is_none() {
             trace!("No next image found");
 
@@ -51,7 +51,8 @@ impl DataLoader {
         }
 
         let image_path = &image_paths[self.image_num];
-        let image = match image::open(&image_path) {
+        self.image_num += 1;
+        let image = match image::open(image_path) {
             Ok(ok) => {
                 trace!("Next image loaded: {}", image_path.to_string_lossy());
                 ok
