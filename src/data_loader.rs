@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, path::PathBuf};
+use std::{collections::BTreeMap, fs, io, path::PathBuf};
 
 use image::DynamicImage;
 use tracing::{trace, warn};
@@ -7,19 +7,45 @@ pub struct DataLoader {
     data_dir: PathBuf,
     auto_reset: bool,
     classes: BTreeMap<String, Vec<PathBuf>>,
-    class_num: usize,
-    image_num: usize,
+    class_i: usize,
+    image_i: usize,
 }
 
 impl DataLoader {
     pub fn new(data_dir: PathBuf) -> Self {
-        Self {
+        let mut this = Self {
             data_dir,
             auto_reset: false,
             classes: BTreeMap::new(),
-            class_num: 0,
-            image_num: 0,
+            class_i: 0,
+            image_i: 0,
+        };
+        Self::populate_classes(&mut this).unwrap();
+
+        this
+    }
+
+    fn populate_classes(&mut self) -> io::Result<()> {
+        for directory in fs::read_dir(&self.data_dir)? {
+            let directory = directory?;
+            let directory_str: String = directory.file_name().to_string_lossy().into();
+
+            if directory.file_type()?.is_dir() {
+                for image_file in fs::read_dir(directory.path())? {
+                    let image_file = image_file?;
+
+                    if image_file.file_type()?.is_file() {
+                        let image_file_path = image_file.path();
+                        self.classes
+                            .entry(directory_str.clone())
+                            .and_modify(|v| v.push(image_file_path.clone()))
+                            .or_insert_with(|| vec![image_file_path]);
+                    }
+                }
+            }
         }
+
+        Ok(())
     }
 
     pub fn num_classes(&self) -> usize {
@@ -31,39 +57,37 @@ impl DataLoader {
     }
 
     pub fn next(&mut self) -> Option<(DynamicImage, String)> {
-        let option = self.classes.iter().nth(self.class_num);
-        if option.is_none() {
-            trace!("No next image found");
+        let mut wrapped = false;
 
-            if self.auto_reset {
+        loop {
+            let Some((class_name, paths)) = self.classes.iter().nth(self.class_i) else {
+                if !self.auto_reset || wrapped {
+                    trace!("No next image found");
+                    return None;
+                }
                 trace!("Auto reset triggered");
                 self.reset();
-                return self.next();
+                wrapped = true;
+                continue;
+            };
+
+            if self.image_i >= paths.len() {
+                self.image_i = 0;
+                self.class_i += 1;
+                continue;
+            }
+
+            let path = &paths[self.image_i];
+            self.image_i += 1;
+
+            match image::open(path) {
+                Ok(img) => {
+                    trace!("Next image loaded: {}", path.display());
+                    return Some((img, class_name.clone()));
+                }
+                Err(err) => warn!("Error loading {}: {err}", path.display()),
             }
         }
-
-        let (class_name, image_paths) = option?;
-
-        if !(self.image_num < image_paths.len()) {
-            self.image_num = 0;
-            self.class_num += 1;
-            return self.next();
-        }
-
-        let image_path = &image_paths[self.image_num];
-        self.image_num += 1;
-        let image = match image::open(image_path) {
-            Ok(ok) => {
-                trace!("Next image loaded: {}", image_path.to_string_lossy());
-                ok
-            }
-            Err(err) => {
-                warn!("Error while loading image: {}", err);
-                return self.next();
-            }
-        };
-
-        Some((image, class_name.to_owned()))
     }
 
     pub fn auto_reset(&mut self, active: bool) {
@@ -71,7 +95,7 @@ impl DataLoader {
     }
 
     pub fn reset(&mut self) {
-        self.class_num = 0;
-        self.image_num = 0;
+        self.class_i = 0;
+        self.image_i = 0;
     }
 }
