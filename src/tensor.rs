@@ -1,6 +1,6 @@
 use image::{DynamicImage, GenericImage, GenericImageView, Rgba};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Tensor {
     width: usize,
     height: usize,
