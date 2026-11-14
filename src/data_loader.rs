@@ -1,9 +1,14 @@
-use std::{collections::BTreeMap, fs, io, path::PathBuf};
+use std::{
+    collections::{BTreeMap, HashMap},
+    fs, io,
+    path::PathBuf,
+};
 
 use image::DynamicImage;
 use tracing::{error, info, trace, warn};
 
 pub struct DataLoader {
+    targets: HashMap<String, Vec<f32>>,
     data_dir: PathBuf,
     auto_reset: bool,
     classes: BTreeMap<String, Vec<PathBuf>>,
@@ -19,10 +24,12 @@ impl DataLoader {
             classes: BTreeMap::new(),
             class_i: 0,
             image_i: 0,
+            targets: HashMap::new(),
         };
         Self::populate_classes(&mut this).unwrap();
+        Self::prepare_targets(&mut this);
         info!(
-            "Populated DataLoader.classes with {} directories and {} images",
+            "Populated DataLoader.classes with {} directories and {} image paths",
             this.num_classes(),
             this.num_images()
         );
@@ -31,6 +38,17 @@ impl DataLoader {
         }
 
         this
+    }
+
+    fn prepare_targets(&mut self) {
+        let zero_vec = vec![0.0f32; self.num_classes()];
+
+        for (i, class) in self.get_all_classes().iter().enumerate() {
+            let mut target = zero_vec.clone();
+            target[i] = 1.0;
+
+            self.targets.insert(class.to_owned(), target);
+        }
     }
 
     fn populate_classes(&mut self) -> io::Result<()> {
@@ -56,6 +74,10 @@ impl DataLoader {
         }
 
         Ok(())
+    }
+
+    pub fn get_targets(&self) -> &HashMap<String, Vec<f32>> {
+        &self.targets
     }
 
     pub fn num_classes(&self) -> usize {
