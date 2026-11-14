@@ -1,7 +1,7 @@
 use std::{collections::BTreeMap, fs, io, path::PathBuf};
 
 use image::DynamicImage;
-use tracing::{info, trace, warn};
+use tracing::{error, info, trace, warn};
 
 pub struct DataLoader {
     data_dir: PathBuf,
@@ -26,6 +26,9 @@ impl DataLoader {
             this.num_classes(),
             this.num_images()
         );
+        if this.num_classes() == 0 || this.num_images() == 0 {
+            error!("No data was loaded");
+        }
 
         this
     }
@@ -34,10 +37,12 @@ impl DataLoader {
         for directory in fs::read_dir(&self.data_dir)? {
             let directory = directory?;
             let directory_str: String = directory.file_name().to_string_lossy().into();
+            trace!("Loading directory {:?}", directory);
 
             if directory.file_type()?.is_dir() {
                 for image_file in fs::read_dir(directory.path())? {
                     let image_file = image_file?;
+                    trace!("Loading image {:?}", image_file);
 
                     if image_file.file_type()?.is_file() {
                         let image_file_path = image_file.path();

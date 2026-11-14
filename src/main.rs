@@ -22,7 +22,7 @@ fn main() {
         .with_max_level(cli.log_level)
         .init();
 
-    let mut data_loader = DataLoader::new("cifar-10-png".into());
+    let mut data_loader = DataLoader::new("cifar-10-png/train".into());
     let mut cnn = CNN::new(vec![
         Box::new(Conv2D::new(3, 4, 3)),
         Box::new(ReLU::new()),
