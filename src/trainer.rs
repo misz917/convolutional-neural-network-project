@@ -1,7 +1,7 @@
 use std::time::Instant;
 
 use image::GenericImageView;
-use tracing::{info, warn};
+use tracing::{debug, info, warn};
 
 use crate::{cnn::CNN, data_loader::DataLoader, tensor::Tensor};
 
@@ -50,9 +50,9 @@ impl<'a> Trainer<'a> {
 
                 let target = self.data_loader.get_targets().get(&class_name).unwrap();
                 let prediction = self.model.forward(image.clone());
-                info!("Prediction: {:?}", prediction);
+                debug!("Prediction: {:?}", prediction);
                 let gradient = mse_gradient(&prediction, target);
-                info!("Gradient: {:?}", gradient);
+                debug!("Gradient: {:?}", gradient);
                 self.model.backward(gradient);
                 self.model.update(self.learning_rate);
             }

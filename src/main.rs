@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use clap::Parser;
 
 use crate::{
@@ -23,14 +25,32 @@ fn main() {
         .init();
 
     let data_loader = DataLoader::new("cifar-10-png/train".into());
+    let targets = data_loader.get_targets().clone();
     let mut cnn = CNN::new(vec![
-        Box::new(Conv2D::new(3, 4, 3)),
+        Box::new(Conv2D::new(3, 8, 3)),
         Box::new(ReLU::new()),
         Box::new(Maxpool2D::new()),
         Box::new(Flatten::new()),
-        Box::new(Linear::new(1024, data_loader.num_classes())),
+        Box::new(Linear::new(2048, data_loader.num_classes())),
     ]);
 
     let mut trainer = Trainer::new(&mut cnn, data_loader, (32, 32), cli.epochs, 0.01);
     trainer.run();
+
+    let image = image::open("cifar-10-png/test/bird/0004.png").unwrap();
+    let prediction = cnn.forward(image);
+
+    println!("{:?}", labels_in_order(&targets));
+    println!("{:?}", prediction);
+}
+
+fn labels_in_order(map: &HashMap<String, Vec<f32>>) -> Vec<String> {
+    let mut labels = vec![String::new(); map.len()];
+
+    for (name, one) in map {
+        let index = one.iter().position(|&v| v == 1.0).unwrap();
+        labels[index] = name.clone();
+    }
+
+    labels
 }
