@@ -5,7 +5,6 @@ use crate::{
     cnn::CNN,
     data_loader::DataLoader,
     layers::{conv2d::Conv2D, flatten::Flatten, linear::Linear, maxpool2d::Maxpool2D, relu::ReLU},
-    tensor::Tensor,
     trainer::Trainer,
 };
 
