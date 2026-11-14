@@ -28,7 +28,7 @@ fn main() {
         Box::new(ReLU::new()),
         Box::new(Maxpool2D::new()),
         Box::new(Flatten::new()),
-        Box::new(Linear::new(96, 5)),
+        Box::new(Linear::new(1024, 5)),
     ]);
 
     let image = data_loader.next().unwrap().0;
