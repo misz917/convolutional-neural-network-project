@@ -310,6 +310,7 @@ dependencies = [
  "confy",
  "image",
  "rand 0.10.3",
+ "rayon",
  "serde",
  "thiserror",
  "tracing",

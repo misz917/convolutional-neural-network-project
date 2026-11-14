@@ -1,3 +1,5 @@
+use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
+
 use crate::{
     layers::{Layer, linear::neuron::Neuron},
     tensor::Tensor,
@@ -17,12 +19,11 @@ impl Layer for Linear {
         assert_eq!(tensor.width(), self.neurons[0].weights.len());
 
         let input = &tensor.get_maps()[0];
-        let mut output: Vec<f32> = Vec::new();
-
-        for n in &mut self.neurons {
-            let value = n.forward(input);
-            output.push(value);
-        }
+        let output: Vec<f32> = self
+            .neurons
+            .par_iter_mut()
+            .map(|n| n.forward(input))
+            .collect();
 
         self.last_input = Some(tensor);
         Tensor::from(output.into_boxed_slice())
