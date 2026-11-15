@@ -1,4 +1,4 @@
-use std::range::Range;
+use std::ops::Range;
 
 use image::{DynamicImage, GenericImage, GenericImageView, Rgba};
 
@@ -116,7 +116,7 @@ impl Tensor {
         let mut out = Self {
             width,
             height: width,
-            maps: vec![vec![0.0; width].into_boxed_slice(); channel_range.into_iter().len()],
+            maps: vec![vec![0.0; width].into_boxed_slice(); channel_range.len()],
         };
 
         for ch in channel_range {
