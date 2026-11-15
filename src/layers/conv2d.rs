@@ -39,7 +39,8 @@ impl Layer for Conv2D {
         for (c, kernel) in self.kernels.iter().enumerate() {
             for w in 0..width {
                 for h in 0..height {
-                    let Some(chunk) = tensor.get_chunk((w, h), self.kernel_diameter, 0..channels)
+                    let Some(chunk) =
+                        tensor.get_chunk((w, h), self.kernel_diameter / 2, 0..channels)
                     else {
                         continue;
                     };
