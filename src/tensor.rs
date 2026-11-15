@@ -1,3 +1,5 @@
+use std::range::Range;
+
 use image::{DynamicImage, GenericImage, GenericImageView, Rgba};
 
 #[derive(Debug, PartialEq, Clone)]
@@ -88,6 +90,51 @@ impl Tensor {
 
     pub fn single_map(&self) -> &Box<[f32]> {
         &self.maps[0]
+    }
+
+    /// uses 0 padding
+    pub fn get_chunk(
+        &self,
+        center: (usize, usize),
+        radius: usize,
+        channel_range: Range<usize>,
+    ) -> Option<Tensor> {
+        let (this_width, this_height, this_channels) = self.dimensions();
+        if center.0 >= this_width
+            || center.1 >= this_height
+            || channel_range.start >= this_channels
+            || channel_range.end >= this_channels
+        {
+            return None;
+        }
+
+        let r = radius as i32;
+        let x = center.0 as i32;
+        let y = center.1 as i32;
+        let width = 1 + 2 * radius;
+
+        let mut out = Self {
+            width,
+            height: width,
+            maps: vec![vec![0.0; width].into_boxed_slice(); channel_range.into_iter().len()],
+        };
+
+        for ch in channel_range {
+            for w in (x - r)..=(x + r) {
+                for h in (y - r)..=(y + r) {
+                    let value: f32;
+                    if w < 0 || h < 0 || w > this_width as i32 || w > this_height as i32 {
+                        value = 0.0;
+                    } else {
+                        value = self.get_xyz(w as usize, h as usize, ch);
+                    }
+
+                    out.set_xyz(w as usize, h as usize, ch, value);
+                }
+            }
+        }
+
+        Some(out)
     }
 }
 
