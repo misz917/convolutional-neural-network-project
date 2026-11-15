@@ -138,6 +138,28 @@ impl Tensor {
 
         Some(out)
     }
+
+    pub fn add_chunk(&mut self, center: (usize, usize), chunk: &Tensor, scale: f32) {
+        assert_eq!(chunk.channels(), self.channels());
+        let r = (chunk.width() / 2) as i32;
+
+        for ch in 0..chunk.channels() {
+            for yi in 0..chunk.height() {
+                for xi in 0..chunk.width() {
+                    let x = center.0 as i32 + xi as i32 - r;
+                    let y = center.1 as i32 + yi as i32 - r;
+                    if x < 0 || y < 0 || x >= self.width as i32 || y >= self.height as i32 {
+                        continue;
+                    }
+
+                    let (x, y) = (x as usize, y as usize);
+                    let current = self.get_xyz(x, y, ch);
+                    let added = scale * chunk.get_xyz(xi, yi, ch);
+                    self.set_xyz(x, y, ch, current + added);
+                }
+            }
+        }
+    }
 }
 
 impl From<&DynamicImage> for Tensor {

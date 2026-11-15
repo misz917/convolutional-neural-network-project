@@ -57,7 +57,33 @@ impl Layer for Conv2D {
     }
 
     fn backward(&mut self, gradient: Tensor) -> Tensor {
-        todo!()
+        let input = self.input.as_ref().expect("backward called before forward");
+        let (width, height, in_channels) = input.dimensions();
+        assert_eq!(gradient.dimensions(), (width, height, self.kernels.len()));
+
+        let mut out = Tensor::new(width, height, in_channels);
+
+        for w in 0..width {
+            for h in 0..height {
+                let chunk = input
+                    .get_chunk((w, h), self.kernel_diameter / 2, 0..in_channels)
+                    .unwrap();
+
+                for (ch, (kernel, k_gradient)) in self
+                    .kernels
+                    .iter()
+                    .zip(self.kernel_gradients.iter_mut())
+                    .enumerate()
+                {
+                    let g = gradient.get_xyz(w, h, ch);
+
+                    add_scaled(k_gradient, &chunk, g);
+                    out.add_chunk((w, h), kernel, g);
+                }
+            }
+        }
+
+        out
     }
 
     fn update(&mut self, learning_rate: f32) {
@@ -101,6 +127,21 @@ fn multiply_tensors(a: &Tensor, b: &Tensor) -> Tensor {
     }
 
     out
+}
+
+/// target += scale * source
+fn add_scaled(target: &mut Tensor, source: &Tensor, scale: f32) {
+    assert_eq!(target.dimensions(), source.dimensions());
+    let (width, height, channels) = target.dimensions();
+
+    for c in 0..channels {
+        for x in 0..width {
+            for y in 0..height {
+                let value = target.get_xyz(x, y, c) + scale * source.get_xyz(x, y, c);
+                target.set_xyz(x, y, c, value);
+            }
+        }
+    }
 }
 
 fn sum_tensor(tensor: &Tensor) -> f32 {
