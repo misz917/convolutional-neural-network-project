@@ -82,11 +82,6 @@ impl Tensor {
         self.maps.extend(other.maps);
     }
 
-    /// very unsafe to use
-    pub fn get_maps_mut(&mut self) -> &mut [Box<[f32]>] {
-        &mut self.maps
-    }
-
     pub fn get_maps(&self) -> &[Box<[f32]>] {
         &self.maps
     }
@@ -121,7 +116,7 @@ impl From<&DynamicImage> for Tensor {
     }
 }
 
-// TODO: improve for cases when there are more than 3 channel
+// TODO: improve for cases when there are more than 3 channels
 impl From<&Tensor> for DynamicImage {
     fn from(value: &Tensor) -> Self {
         let width = value.width();
@@ -157,13 +152,3 @@ impl From<Box<[f32]>> for Tensor {
         }
     }
 }
-
-// impl From<Vec<Box<[f32]>>> for Tensor {
-//     fn from(value: Vec<Box<[f32]>>) -> Self {
-//         Tensor {
-//             width: todo!(),
-//             height: todo!(),
-//             maps: todo!(),
-//         }
-//     }
-// }

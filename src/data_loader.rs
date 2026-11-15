@@ -10,7 +10,6 @@ use tracing::{error, info, trace, warn};
 pub struct DataLoader {
     targets: HashMap<String, Vec<f32>>,
     data_dir: PathBuf,
-    auto_reset: bool,
     classes: BTreeMap<String, Vec<PathBuf>>,
     class_i: usize,
     image_i: usize,
@@ -20,7 +19,6 @@ impl DataLoader {
     pub fn new(data_dir: PathBuf) -> Self {
         let mut this = Self {
             data_dir,
-            auto_reset: false,
             classes: BTreeMap::new(),
             class_i: 0,
             image_i: 0,
@@ -57,10 +55,17 @@ impl DataLoader {
             let directory_str: String = directory.file_name().to_string_lossy().into();
             trace!("Loading directory {:?}", directory);
 
+            let mut limit = 0;
+
             if directory.file_type()?.is_dir() {
                 for image_file in fs::read_dir(directory.path())? {
                     let image_file = image_file?;
                     trace!("Loading image {:?}", image_file);
+
+                    limit += 1;
+                    if limit % 10 != 0 {
+                        continue;
+                    }
 
                     if image_file.file_type()?.is_file() {
                         let image_file_path = image_file.path();
@@ -92,10 +97,6 @@ impl DataLoader {
         self.classes.keys().cloned().collect()
     }
 
-    pub fn auto_reset(&mut self, active: bool) {
-        self.auto_reset = active;
-    }
-
     pub fn reset(&mut self) {
         self.class_i = 0;
         self.image_i = 0;
@@ -106,19 +107,8 @@ impl Iterator for DataLoader {
     type Item = (DynamicImage, String);
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut wrapped = false;
-
         loop {
-            let Some((class_name, paths)) = self.classes.iter().nth(self.class_i) else {
-                if !self.auto_reset || wrapped {
-                    trace!("No next image found");
-                    return None;
-                }
-                trace!("Auto reset triggered");
-                self.reset();
-                wrapped = true;
-                continue;
-            };
+            let (class_name, paths) = self.classes.iter().nth(self.class_i)?;
 
             if self.image_i >= paths.len() {
                 self.image_i = 0;
