@@ -1,7 +1,7 @@
-use crate::{kernel::Kernel, layers::Layer, tensor::Tensor};
+use crate::{layers::Layer, tensor::Tensor};
 
 pub struct Conv2D {
-    kernels: Vec<Kernel>,
+    kernels: Vec<Tensor>,
     kernel_gradients: Vec<Tensor>,
     input: Option<Tensor>,
 }
@@ -34,7 +34,7 @@ impl Layer for Conv2D {
             .zip(self.kernel_gradients.iter_mut())
             .enumerate()
         {
-            let k_diameter = kernel.diameter() as i32;
+            let k_diameter = kernel.width() as i32;
             let k_radius = k_diameter / 2;
 
             for tensor_y in 0..height {
@@ -72,7 +72,7 @@ impl Layer for Conv2D {
             .iter_mut()
             .zip(self.kernel_gradients.iter_mut())
         {
-            let d = kernel.diameter();
+            let d = kernel.width();
             let channels = kernel.channels();
 
             for ch in 0..channels {
@@ -95,8 +95,8 @@ impl Conv2D {
         assert!(in_channels > 0);
         assert!(kernel_diameter % 2 == 1);
 
-        let kernels: Vec<Kernel> = (0..out_channels)
-            .map(|_| Kernel::new_random(kernel_diameter, in_channels))
+        let kernels: Vec<Tensor> = (0..out_channels)
+            .map(|_| Tensor::new_random(kernel_diameter, in_channels, 3))
             .collect();
 
         let kernel_gradients: Vec<Tensor> = (0..out_channels)
@@ -110,7 +110,7 @@ impl Conv2D {
         }
     }
 
-    fn convolve(tensor: &Tensor, kernel: &Kernel) -> Tensor {
+    fn convolve(tensor: &Tensor, kernel: &Tensor) -> Tensor {
         let t_channels = tensor.channels();
         let channels = kernel.channels();
         assert_eq!(t_channels, channels);
@@ -119,7 +119,7 @@ impl Conv2D {
         let height = tensor.height() as i32;
         let mut new_tensor = Tensor::new(width as usize, height as usize, 1);
 
-        let k_diameter = kernel.diameter() as i32;
+        let k_diameter = kernel.width() as i32;
         let k_radius = k_diameter / 2;
 
         // for each pixel in tensor
