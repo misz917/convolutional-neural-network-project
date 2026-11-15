@@ -103,7 +103,7 @@ impl Tensor {
         if center.0 >= this_width
             || center.1 >= this_height
             || channel_range.start >= this_channels
-            || channel_range.end >= this_channels
+            || channel_range.end > this_channels
         {
             return None;
         }
@@ -116,20 +116,22 @@ impl Tensor {
         let mut out = Self {
             width,
             height: width,
-            maps: vec![vec![0.0; width].into_boxed_slice(); channel_range.len()],
+            maps: vec![vec![0.0; width * width].into_boxed_slice(); channel_range.len()],
         };
 
-        for ch in channel_range {
+        for (out_ch, ch) in channel_range.enumerate() {
             for w in (x - r)..=(x + r) {
                 for h in (y - r)..=(y + r) {
                     let value: f32;
-                    if w < 0 || h < 0 || w > this_width as i32 || w > this_height as i32 {
+                    if w < 0 || h < 0 || w >= this_width as i32 || h >= this_height as i32 {
                         value = 0.0;
                     } else {
                         value = self.get_xyz(w as usize, h as usize, ch);
                     }
 
-                    out.set_xyz(w as usize, h as usize, ch, value);
+                    let local_x = (w - x + r) as usize;
+                    let local_y = (h - y + r) as usize;
+                    out.set_xyz(local_x, local_y, out_ch, value);
                 }
             }
         }
