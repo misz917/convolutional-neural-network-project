@@ -63,7 +63,7 @@ impl DataLoader {
                     trace!("Loading image {:?}", image_file);
 
                     limit += 1;
-                    if limit % 10 != 0 {
+                    if limit % 2 != 0 {
                         continue;
                     }
 

@@ -80,6 +80,7 @@ impl Tensor {
         self.maps.len()
     }
 
+    /// consumes other to append its maps to self
     pub fn merge(&mut self, other: Tensor) {
         self.maps.extend(other.maps);
     }

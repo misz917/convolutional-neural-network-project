@@ -1,3 +1,5 @@
+use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
+
 use crate::{layers::Layer, tensor::Tensor};
 
 pub struct Conv2D {
@@ -34,26 +36,39 @@ impl Layer for Conv2D {
         let (width, height, channels) = tensor.dimensions();
         assert_eq!(channels, self.kernels[0].channels());
 
-        let mut out = Tensor::new(width, height, self.kernels.len());
+        let mut smaller_tensors: Vec<(Tensor, usize)> = self
+            .kernels
+            .par_iter()
+            .enumerate()
+            .map(|(c, kernel)| {
+                let mut out = Tensor::new(width, height, 1);
 
-        for (c, kernel) in self.kernels.iter().enumerate() {
-            for w in 0..width {
-                for h in 0..height {
-                    let Some(chunk) =
-                        tensor.get_chunk((w, h), self.kernel_diameter / 2, 0..channels)
-                    else {
-                        continue;
-                    };
+                for w in 0..width {
+                    for h in 0..height {
+                        let Some(chunk) =
+                            tensor.get_chunk((w, h), self.kernel_diameter / 2, 0..channels)
+                        else {
+                            continue;
+                        };
 
-                    let multiplied = multiply_tensors(kernel, &chunk);
-                    let sum = sum_tensor(&multiplied);
-                    out.set_xyz(w, h, c, sum);
+                        let multiplied = multiply_tensors(kernel, &chunk);
+                        let sum = sum_tensor(&multiplied);
+                        out.set_xyz(w, h, 0, sum);
+                    }
                 }
-            }
+
+                (out, c)
+            })
+            .collect();
+
+        smaller_tensors.sort_by(|(_, ai), (_, bi)| ai.cmp(bi));
+        let mut merged_tensor = Tensor::new(width, height, 0);
+        for (t, _) in smaller_tensors {
+            merged_tensor.merge(t);
         }
 
         self.input = Some(tensor);
-        out
+        merged_tensor
     }
 
     fn backward(&mut self, gradient: Tensor) -> Tensor {
