@@ -94,10 +94,6 @@ impl Tensor {
         &self.maps[0]
     }
 
-    fn split_maps_mut(&mut self) -> Vec<&mut [f32]> {
-        self.maps.iter_mut().map(|b| &mut **b).collect()
-    }
-
     /// uses 0 padding
     pub fn get_chunk(
         &self,
@@ -151,7 +147,8 @@ impl Tensor {
         let width = self.width;
         let height = self.height;
 
-        let mut maps = self.split_maps_mut();
+        // let mut maps = self.split_maps_mut();
+        let maps = &mut self.maps;
 
         let _ = maps.par_iter_mut().enumerate().map(|(ch, map)| {
             for yi in 0..chunk.height() {
