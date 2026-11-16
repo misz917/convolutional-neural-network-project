@@ -38,6 +38,8 @@ impl<'a> Trainer<'a> {
             let instant = Instant::now();
             info!("Starting epoch {}", epoch);
 
+            self.data_loader.shuffle();
+
             while let Some((image, class_name)) = self.data_loader.next() {
                 if self.image_size != image.dimensions() {
                     warn!(

@@ -5,6 +5,7 @@ use std::{
 };
 
 use image::DynamicImage;
+use rand::seq::SliceRandom;
 use tracing::{error, info, trace, warn};
 
 pub struct DataLoader {
@@ -86,10 +87,6 @@ impl DataLoader {
         Ok(())
     }
 
-    pub fn shuffle(&mut self) {
-        todo!()
-    }
-
     pub fn get_targets(&self) -> &HashMap<String, Vec<f32>> {
         &self.targets
     }
@@ -110,27 +107,55 @@ impl DataLoader {
         self.class_i = 0;
         self.image_i = 0;
     }
+
+    pub fn shuffle(&mut self) {
+        if self.shuffled.is_none() {
+            let pairs: Vec<(String, PathBuf)> = self
+                .classes
+                .iter()
+                .flat_map(|(k, ps)| ps.iter().map(move |p| (k.clone(), p.clone())))
+                .collect();
+            self.shuffled = Some(pairs);
+        }
+
+        self.shuffled
+            .as_deref_mut()
+            .unwrap()
+            .shuffle(&mut rand::rng());
+    }
 }
 
 impl Iterator for DataLoader {
     type Item = (DynamicImage, String);
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.shuffled.is_some() {
-            let (class, path) = self.shuffled[self.shuffled_i];
-        }
-
         loop {
-            let (class_name, paths) = self.classes.iter().nth(self.class_i)?;
+            let class_name: &String;
+            let path: &PathBuf;
 
-            if self.image_i >= paths.len() {
-                self.image_i = 0;
-                self.class_i += 1;
-                continue;
+            if let Some(shuffled) = &self.shuffled {
+                if self.shuffled_i >= shuffled.len() {
+                    return None;
+                }
+
+                let (this_class_name, this_path) = &shuffled[self.shuffled_i];
+                class_name = this_class_name;
+                path = this_path;
+
+                self.shuffled_i += 1;
+            } else {
+                let (this_class_name, paths) = self.classes.iter().nth(self.class_i)?;
+                class_name = this_class_name;
+
+                if self.image_i >= paths.len() {
+                    self.image_i = 0;
+                    self.class_i += 1;
+                    continue;
+                }
+
+                path = &paths[self.image_i];
+                self.image_i += 1;
             }
-
-            let path = &paths[self.image_i];
-            self.image_i += 1;
 
             match image::open(path) {
                 Ok(img) => {
