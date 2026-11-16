@@ -23,7 +23,7 @@ fn main() {
         .with_max_level(cli.log_level)
         .init();
 
-    let data_loader = DataLoader::new("cifar-10-png-reduced".into());
+    let data_loader = DataLoader::new("cifar-10-png/train".into());
     let targets = data_loader.get_targets().clone();
     let mut cnn = CNN::new(vec![
         Box::new(Conv2D::new(3, 8, 3)),

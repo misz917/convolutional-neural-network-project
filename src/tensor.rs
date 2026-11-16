@@ -1,6 +1,7 @@
 use std::ops::Range;
 
 use image::{DynamicImage, GenericImage, GenericImageView, Rgba};
+use rayon::iter::{IndexedParallelIterator, IntoParallelRefMutIterator, ParallelIterator};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Tensor {
@@ -93,6 +94,10 @@ impl Tensor {
         &self.maps[0]
     }
 
+    fn split_maps_mut(&mut self) -> Vec<&mut [f32]> {
+        self.maps.iter_mut().map(|b| &mut **b).collect()
+    }
+
     /// uses 0 padding
     pub fn get_chunk(
         &self,
@@ -143,23 +148,28 @@ impl Tensor {
     pub fn add_chunk(&mut self, center: (usize, usize), chunk: &Tensor, scale: f32) {
         assert_eq!(chunk.channels(), self.channels());
         let r = (chunk.width() / 2) as i32;
+        let width = self.width;
+        let height = self.height;
 
-        for ch in 0..chunk.channels() {
+        let mut maps = self.split_maps_mut();
+
+        let _ = maps.par_iter_mut().enumerate().map(|(ch, map)| {
             for yi in 0..chunk.height() {
                 for xi in 0..chunk.width() {
                     let x = center.0 as i32 + xi as i32 - r;
                     let y = center.1 as i32 + yi as i32 - r;
-                    if x < 0 || y < 0 || x >= self.width as i32 || y >= self.height as i32 {
+                    if x < 0 || y < 0 || x >= width as i32 || y >= height as i32 {
                         continue;
                     }
 
                     let (x, y) = (x as usize, y as usize);
-                    let current = self.get_xyz(x, y, ch);
+                    let current = map[y * width + x];
                     let added = scale * chunk.get_xyz(xi, yi, ch);
-                    self.set_xyz(x, y, ch, current + added);
+
+                    map[y * width + x] = current + added;
                 }
             }
-        }
+        });
     }
 }
 
