@@ -106,6 +106,7 @@ impl DataLoader {
     pub fn reset(&mut self) {
         self.class_i = 0;
         self.image_i = 0;
+        self.shuffled_i = 0;
     }
 
     pub fn shuffle(&mut self) {
@@ -122,6 +123,8 @@ impl DataLoader {
             .as_deref_mut()
             .unwrap()
             .shuffle(&mut rand::rng());
+
+        self.shuffled_i = 0;
     }
 }
 
