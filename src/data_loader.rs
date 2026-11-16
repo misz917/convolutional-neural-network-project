@@ -13,6 +13,9 @@ pub struct DataLoader {
     classes: BTreeMap<String, Vec<PathBuf>>,
     class_i: usize,
     image_i: usize,
+
+    shuffled: Option<Vec<(String, PathBuf)>>,
+    shuffled_i: usize,
 }
 
 impl DataLoader {
@@ -23,6 +26,8 @@ impl DataLoader {
             class_i: 0,
             image_i: 0,
             targets: HashMap::new(),
+            shuffled: None,
+            shuffled_i: 0,
         };
         Self::populate_classes(&mut this).unwrap();
         Self::prepare_targets(&mut this);
@@ -81,6 +86,10 @@ impl DataLoader {
         Ok(())
     }
 
+    pub fn shuffle(&mut self) {
+        todo!()
+    }
+
     pub fn get_targets(&self) -> &HashMap<String, Vec<f32>> {
         &self.targets
     }
@@ -107,6 +116,10 @@ impl Iterator for DataLoader {
     type Item = (DynamicImage, String);
 
     fn next(&mut self) -> Option<Self::Item> {
+        if self.shuffled.is_some() {
+            let (class, path) = self.shuffled[self.shuffled_i];
+        }
+
         loop {
             let (class_name, paths) = self.classes.iter().nth(self.class_i)?;
 
