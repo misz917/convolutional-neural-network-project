@@ -61,17 +61,10 @@ impl DataLoader {
             let directory_str: String = directory.file_name().to_string_lossy().into();
             trace!("Loading directory {:?}", directory);
 
-            let mut limit = 0;
-
             if directory.file_type()?.is_dir() {
                 for image_file in fs::read_dir(directory.path())? {
                     let image_file = image_file?;
                     trace!("Loading image {:?}", image_file);
-
-                    limit += 1;
-                    if limit % 50 != 0 {
-                        continue;
-                    }
 
                     if image_file.file_type()?.is_file() {
                         let image_file_path = image_file.path();
